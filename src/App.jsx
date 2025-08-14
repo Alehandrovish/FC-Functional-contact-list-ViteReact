@@ -1,12 +1,12 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid/non-secure";
 import ContactList from "./components/ContactList/ContactList";
 import ContactForm from "./components/ContactForm/ContactForm";
 import "./reset.css";
 import "./App.css";
 
-class App extends Component {
-  CLEAR_PERSON_DATA = {
+function App() {
+  const CLEAR_PERSON_DATA = {
     id: "",
     firstName: "",
     lastName: "",
@@ -14,98 +14,68 @@ class App extends Component {
     phone: "",
   };
 
-  state = {
-    contacts: [],
-    personData: this.CLEAR_PERSON_DATA,
-  };
+  const [arrContacts, setArrContacts] = useState([]);
+  const [personData, setPersonData] = useState(CLEAR_PERSON_DATA);
 
-  deleteContact = (id) => {
-    this.setState((state) => {
-      const contacts = state.contacts.filter((contact) => contact.id !== id);
-      this.saveToLocalStorage(contacts);
-      return {
-        contacts,
-        personData: this.CLEAR_PERSON_DATA,
-      };
-    });
-  };
+  function deleteContact(id) {
+    const newContacts = arrContacts.filter((contact) => contact.id !== id);
+    saveToLocalStorage(newContacts);
+    setArrContacts(newContacts);
+    setPersonData(CLEAR_PERSON_DATA);
+  }
 
-  formSubmitHandler = (contact) => {
-    if (this.state.personData.id) {
-      this.setState((state) => {
-        let newContacts = state.contacts;
-        const contactForEditId = state.contacts.findIndex(
-          (cont) => cont.id === contact.id
-        );
-        newContacts[contactForEditId] = contact;
-        this.saveToLocalStorage(newContacts);
-        return {
-          contacts: newContacts,
-        };
-      });
+  function formSubmitHandler(contact) {
+    let newContacts = [...arrContacts];
+    if (personData.id) {
+      const contactForEditId = arrContacts.findIndex(
+        (cont) => cont.id === contact.id
+      );
+      newContacts[contactForEditId] = contact;
     } else {
       contact.id = nanoid();
-      this.setState((state) => {
-        const contacts = [...state.contacts, contact];
-        this.saveToLocalStorage(contacts);
-        return {
-          contacts,
-        };
-      });
+      newContacts = newContacts.concat(contact);
     }
-  };
+    saveToLocalStorage(newContacts);
+    setArrContacts(newContacts);
+  }
 
-  handleEditMode = (contact) => {
-    this.setState(() => {
-      const personData = contact;
-      return {
-        personData,
-      };
-    });
-  };
+  function handleEditMode(contact) {
+    setPersonData(contact);
+  }
 
-  handleAddMode = () => {
-    this.setState({
-      personData: {
-        id: "",
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-      },
-    });
-  };
+  function handleAddMode() {
+    setPersonData(CLEAR_PERSON_DATA);
+  }
 
-  componentDidMount() {
+  useEffect(() => {
     const contacts = JSON.parse(localStorage.getItem("Contacts")) || [];
-    this.setState({ contacts });
-  }
-  saveToLocalStorage = (contacts) => {
+    setArrContacts(contacts);
+  }, []);
+
+  function saveToLocalStorage(contacts) {
     localStorage.setItem("Contacts", JSON.stringify(contacts));
-  };
-  render() {
-    return (
-      <>
-        <article className="content-wrapper">
-          <h1>Contact list</h1>
-          <section className="content-block">
-            <ContactList
-              contacts={this.state.contacts}
-              onDelete={this.deleteContact}
-              onEditMode={this.handleEditMode}
-              idOfItem={this.state.personData.id}
-              onAddMode={this.handleAddMode}
-            />
-            <ContactForm
-              personData={this.state.personData}
-              formSubmitHandler={this.formSubmitHandler}
-              onDelete={this.deleteContact}
-            />
-          </section>
-        </article>
-      </>
-    );
   }
+  return (
+    <>
+      <article className="content-wrapper">
+        <h1>Contact list</h1>
+        <section className="content-block">
+          <ContactList
+            contacts={arrContacts}
+            onDelete={deleteContact}
+            onEditMode={handleEditMode}
+            idOfItem={personData.id}
+            onAddMode={handleAddMode}
+          />
+          <ContactForm
+            personData={personData}
+            formSubmitHandler={formSubmitHandler}
+            onDelete={deleteContact}
+          />
+        </section>
+      </article>
+    </>
+  );
 }
 
 export default App;

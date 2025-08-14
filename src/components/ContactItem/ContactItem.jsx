@@ -1,32 +1,29 @@
-import { Component } from "react";
 import "./ContactItem.css";
 
-class ContactItem extends Component {
-  onContactDelete = (event) => {
+function ContactItem({ contact, onDelete, onEnterEditMode, idOfItem }) {
+  function onContactDelete(event) {
     event.stopPropagation();
-    this.props.onDelete(this.props.contact.id);
-  };
-
-  onEdit = () => {
-    this.props.onEnterEditMode(this.props.contact);
-  };
-
-  render() {
-    const { id, firstName, lastName } = this.props.contact;
-    return (
-      <div
-        className={`content-item ${id === this.props.idOfItem ? " focus" : ""}`}
-        onDoubleClick={this.onEdit}
-      >
-        <p>
-          {firstName} {lastName}
-        </p>
-        <span className="btn-delete" onClick={this.onContactDelete}>
-          X
-        </span>
-      </div>
-    );
+    onDelete(contact.id);
   }
+
+  function onEdit() {
+    onEnterEditMode(contact);
+  }
+
+  const { id, firstName, lastName } = contact;
+  return (
+    <div
+      className={`content-item ${id === idOfItem ? " focus" : ""}`}
+      onDoubleClick={onEdit}
+    >
+      <p>
+        {firstName} {lastName}
+      </p>
+      <span className="btn-delete" onClick={onContactDelete}>
+        X
+      </span>
+    </div>
+  );
 }
 
 export default ContactItem;
