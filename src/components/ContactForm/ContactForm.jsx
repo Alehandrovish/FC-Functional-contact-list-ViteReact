@@ -1,19 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ContactForm.css";
 
-function ContactForm({ personData, formSubmitHandler, onDelete }) {
-  const [formData, setFormData] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-  });
+function ContactForm({ personData, saveNewArrContacts, onDelete }) {
+  const [formData, setFormData] = useState(personData);
+
+  useEffect(() => {
+    setFormData(personData);
+  }, [personData]);
 
   function onInputChange(event) {
-    const { id, value } = event.target;
+    const { name, value } = event.target;
     setFormData((prev) => {
-      return { ...prev, [id]: value };
+      return { ...prev, [name]: value };
     });
   }
 
@@ -36,7 +34,8 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
 
   function onFormSubmit(event) {
     event.preventDefault();
-    formSubmitHandler(formData);
+    saveNewArrContacts(formData);
+    clearAllInputs();
   }
 
   const { id, firstName, lastName, email, phone } = formData;
@@ -46,16 +45,12 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
     clearAllInputs();
   }
 
-  if (formData.id !== personData.id) {
-    setFormData(personData);
-  }
-
   return (
     <form onSubmit={onFormSubmit}>
       <div className="input-block">
         <div className="form-item">
           <input
-            id="firstName"
+            name="firstName"
             type="text"
             placeholder="First name"
             value={firstName}
@@ -67,7 +62,7 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
         </div>
         <div className="form-item">
           <input
-            id="lastName"
+            name="lastName"
             type="text"
             placeholder="Last name"
             value={lastName}
@@ -79,7 +74,7 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
         </div>
         <div className="form-item">
           <input
-            id="email"
+            name="email"
             type="email"
             placeholder="Email"
             value={email}
@@ -91,7 +86,7 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
         </div>
         <div className="form-item">
           <input
-            id="phone"
+            name="phone"
             type="tel"
             placeholder="Phone"
             value={phone}
@@ -104,13 +99,13 @@ function ContactForm({ personData, formSubmitHandler, onDelete }) {
       </div>
       <div className="form-buttons">
         <button type="submit">Save</button>
-        <button
-          type="button"
-          className={id ? "" : "hide"}
-          onClick={onDeleteContact}
-        >
-          Delete
-        </button>
+        {id ? (
+          <button type="button" onClick={onDeleteContact}>
+            Delete
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     </form>
   );

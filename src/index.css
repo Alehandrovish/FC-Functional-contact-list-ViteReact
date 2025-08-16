@@ -1,7 +1,7 @@
 :root {
   --borderForObjects: 3px solid black;
 }
-
 body {
-  height: 100vh;
+  margin-top: 50vh;
+  transform: translateY(-50%);
 }

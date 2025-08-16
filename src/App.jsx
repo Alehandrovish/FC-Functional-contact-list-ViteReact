@@ -14,28 +14,37 @@ function App() {
     phone: "",
   };
 
-  const [arrContacts, setArrContacts] = useState([]);
+  const [arrContacts, setArrContacts] = useState(() => {
+    return JSON.parse(localStorage.getItem("Contacts")) || [];
+  });
   const [personData, setPersonData] = useState(CLEAR_PERSON_DATA);
+
+  // useEffect(() => {
+  //   const contacts = JSON.parse(localStorage.getItem("Contacts")) || [];
+  //   setArrContacts(contacts);
+  // }, []);
+
+  useEffect(() => {
+    saveToLocalStorage(arrContacts);
+    console.log(JSON.stringify(localStorage.getItem("Contacts")));
+  }, [arrContacts]);
 
   function deleteContact(id) {
     const newContacts = arrContacts.filter((contact) => contact.id !== id);
-    saveToLocalStorage(newContacts);
     setArrContacts(newContacts);
     setPersonData(CLEAR_PERSON_DATA);
   }
 
-  function formSubmitHandler(contact) {
-    let newContacts = [...arrContacts];
-    if (personData.id) {
-      const contactForEditId = arrContacts.findIndex(
-        (cont) => cont.id === contact.id
+  function saveNewArrContacts(contact) {
+    let newContacts = [];
+    if (contact.id) {
+      newContacts = arrContacts.map((item) =>
+        item.id === contact.id ? contact : item
       );
-      newContacts[contactForEditId] = contact;
     } else {
       contact.id = nanoid();
-      newContacts = newContacts.concat(contact);
+      newContacts = [...arrContacts, contact];
     }
-    saveToLocalStorage(newContacts);
     setArrContacts(newContacts);
   }
 
@@ -46,11 +55,6 @@ function App() {
   function handleAddMode() {
     setPersonData(CLEAR_PERSON_DATA);
   }
-
-  useEffect(() => {
-    const contacts = JSON.parse(localStorage.getItem("Contacts")) || [];
-    setArrContacts(contacts);
-  }, []);
 
   function saveToLocalStorage(contacts) {
     localStorage.setItem("Contacts", JSON.stringify(contacts));
@@ -69,7 +73,7 @@ function App() {
           />
           <ContactForm
             personData={personData}
-            formSubmitHandler={formSubmitHandler}
+            saveNewArrContacts={saveNewArrContacts}
             onDelete={deleteContact}
           />
         </section>
