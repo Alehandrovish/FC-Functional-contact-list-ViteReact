@@ -14,38 +14,42 @@ function App() {
     phone: "",
   };
 
-  const [arrContacts, setArrContacts] = useState(() => {
-    return JSON.parse(localStorage.getItem("Contacts")) || [];
-  });
+  const [arrContacts, setArrContacts] = useState([]);
   const [personData, setPersonData] = useState(CLEAR_PERSON_DATA);
 
-  // useEffect(() => {
-  //   const contacts = JSON.parse(localStorage.getItem("Contacts")) || [];
-  //   setArrContacts(contacts);
-  // }, []);
-
   useEffect(() => {
-    saveToLocalStorage(arrContacts);
-    console.log(JSON.stringify(localStorage.getItem("Contacts")));
-  }, [arrContacts]);
+    const contacts = JSON.parse(localStorage.getItem("Contacts")) || [];
+    setArrContacts(contacts);
+  }, []);
 
   function deleteContact(id) {
     const newContacts = arrContacts.filter((contact) => contact.id !== id);
     setArrContacts(newContacts);
+    saveToLocalStorage(newContacts);
     setPersonData(CLEAR_PERSON_DATA);
   }
 
-  function saveNewArrContacts(contact) {
-    let newContacts = [];
-    if (contact.id) {
-      newContacts = arrContacts.map((item) =>
-        item.id === contact.id ? contact : item
-      );
-    } else {
-      contact.id = nanoid();
-      newContacts = [...arrContacts, contact];
-    }
+  function addNewContact(contact) {
+    const contactWithID = { ...contact, id: nanoid() };
+    const newContacts = [...arrContacts, contactWithID];
     setArrContacts(newContacts);
+    saveToLocalStorage(newContacts);
+    setPersonData(CLEAR_PERSON_DATA);
+  }
+
+  function editExistingContact(contact) {
+    const newContacts = arrContacts.map((item) =>
+      item.id === contact.id ? contact : item
+    );
+    setArrContacts(newContacts);
+    saveToLocalStorage(newContacts);
+  }
+  function saveNewArrContacts(contact) {
+    if (contact.id) {
+      editExistingContact(contact);
+    } else {
+      addNewContact(contact);
+    }
   }
 
   function handleEditMode(contact) {
@@ -60,25 +64,23 @@ function App() {
     localStorage.setItem("Contacts", JSON.stringify(contacts));
   }
   return (
-    <>
-      <article className="content-wrapper">
-        <h1>Contact list</h1>
-        <section className="content-block">
-          <ContactList
-            contacts={arrContacts}
-            onDelete={deleteContact}
-            onEditMode={handleEditMode}
-            idOfItem={personData.id}
-            onAddMode={handleAddMode}
-          />
-          <ContactForm
-            personData={personData}
-            saveNewArrContacts={saveNewArrContacts}
-            onDelete={deleteContact}
-          />
-        </section>
-      </article>
-    </>
+    <article className="content-wrapper">
+      <h1>Contact list</h1>
+      <section className="content-block">
+        <ContactList
+          contacts={arrContacts}
+          onDelete={deleteContact}
+          onEditMode={handleEditMode}
+          idOfItem={personData.id}
+          onAddMode={handleAddMode}
+        />
+        <ContactForm
+          personData={personData}
+          saveNewArrContacts={saveNewArrContacts}
+          onDelete={deleteContact}
+        />
+      </section>
+    </article>
   );
 }
 

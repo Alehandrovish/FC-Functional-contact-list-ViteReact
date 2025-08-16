@@ -18,7 +18,7 @@ function ContactForm({ personData, saveNewArrContacts, onDelete }) {
   function clearInput(event) {
     const inputSibling = event.target.parentNode.firstChild;
     setFormData((prev) => {
-      return { ...prev, [inputSibling.id]: "" };
+      return { ...prev, [inputSibling.name]: "" };
     });
   }
 
@@ -35,7 +35,9 @@ function ContactForm({ personData, saveNewArrContacts, onDelete }) {
   function onFormSubmit(event) {
     event.preventDefault();
     saveNewArrContacts(formData);
-    clearAllInputs();
+    if (!formData.id) {
+      clearAllInputs();
+    }
   }
 
   const { id, firstName, lastName, email, phone } = formData;
